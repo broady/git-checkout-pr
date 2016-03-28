@@ -68,20 +68,14 @@ Flags:
 		*branch = "pull" + id
 	}
 
-	if *verbose {
-		log.Print("Running:", "git", "fetch", remote, "pull/"+id+"/head:"+*branch)
-	}
-	cmd := exec.Command("git", "fetch", remote, "pull/"+id+"/head:"+*branch)
+	cmd := newCmd("git", "fetch", remote, "pull/"+id+"/head:"+*branch)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		os.Stderr.Write(out)
 		os.Exit(1)
 	}
 
-	if *verbose {
-		log.Print("Running:", "git", "checkout", *branch)
-	}
-	cmd = exec.Command("git", "checkout", *branch)
+	cmd = newCmd("git", "checkout", *branch)
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		os.Stderr.Write(out)
@@ -91,4 +85,13 @@ Flags:
 	if *verbose {
 		log.Print("Done")
 	}
+}
+
+func newCmd(name string, arg ...string) *exec.Cmd {
+	if *verbose {
+		args := strings.Join(arg, " ")
+		log.Printf("Running: %s %s", name, args)
+	}
+
+	return exec.Command(name, arg...)
 }
